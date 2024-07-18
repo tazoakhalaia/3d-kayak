@@ -29,6 +29,8 @@ class Kayak {
   private prizes = new Object3D();
   private goldTexute?: Texture;
   private score = document.querySelector("span");
+  private startgame = document.querySelector(".startgame");
+  private cashout = document.querySelector(".cashout");
   private coins = 0;
 
   init() {
@@ -50,6 +52,7 @@ class Kayak {
     this.renderScene = this.renderScene.bind(this);
     window.addEventListener("resize", this.onWindowResize.bind(this));
     this.goldTexute = new TextureLoader().load("assets/coin.png");
+    this.addEventListener();
     this.renderScene();
     this.showFPS();
     this.createPlane();
@@ -85,6 +88,30 @@ class Kayak {
     this.scene?.add(water);
   }
   ///End Plane
+
+  startAction() {
+    this.startGameState = true;
+    if (this.startgame) {
+      (this.startgame as HTMLDivElement).style.display = "none";
+      (this.cashout as HTMLDivElement).style.display = "flex";
+    }
+  }
+
+  cashoutAction() {
+    this.startGameState = false;
+    (this.startgame as HTMLDivElement).style.display = "flex";
+    (this.cashout as HTMLDivElement).style.display = "none";
+    this.resert();
+  }
+
+  addEventListener = () => {
+    this.startgame?.addEventListener("click", () => this.startAction());
+    this.cashout?.addEventListener("click", () => this.cashoutAction());
+  };
+  removeEventListener = () => {
+    this.startgame?.removeEventListener("click", () => this.startAction());
+    this.cashout?.removeEventListener("click", () => this.cashoutAction());
+  };
 
   //create FPS on screen
   showFPS() {
@@ -143,8 +170,10 @@ class Kayak {
   renderScene() {
     this.renderer?.setAnimationLoop(this.renderScene);
     if (this.boat && this.camera) {
-      this.boat.position.z -= 0.5;
-      this.camera.position.z -= 0.5;
+      if (this.startGameState) {
+        this.boat.position.z -= 0.5;
+        this.camera.position.z -= 0.5;
+      }
       for (let i = 0; i < this.prizes.children.length; i++) {
         const coin = this.prizes.children[i];
         if (this.boat.position.z - 25 === this.prizes.children[i].position.z) {
@@ -173,6 +202,15 @@ class Kayak {
       this.renderer?.render(this.scene, this.camera);
     }
   }
+
+  resert = () => {
+    this.removeEventListener();
+    this.boat.position.z = 35;
+    this.coins = 0;
+    if (this.camera) {
+      this.camera.position.set(0, 30, 130);
+    }
+  };
 }
 
 const kayak = new Kayak();

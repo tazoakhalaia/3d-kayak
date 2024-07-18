@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -15,14 +15,47 @@
     .score {
       position: absolute;
     }
-    h1{
+    h1 {
       color: white;
+    }
+    .startgame {
+      position: absolute;
+      left: 40%;
+      top: 95%;
+      transform: translateX(-50%);
+      transform: translateY(-100%);
+      border-radius: 4px;
+    }
+    .startgame button {
+      cursor: pointer;
+      width: 300px;
+      height: 100px;
+    }
+    .cashout {
+      display: none;
+      position: absolute;
+      left: 40%;
+      top: 95%;
+      transform: translateX(-50%);
+      transform: translateY(-100%);
+      border-radius: 4px;
+    }
+    .cashout button {
+      cursor: pointer;
+      width: 300px;
+      height: 100px;
     }
   </style>
   <body>
     <div id="app"></div>
     <div class="score">
       <h1>Score: <span>0</span></h1>
+    </div>
+    <div class="startgame">
+      <button><span class="btn">PLAY</span></button>
+    </div>
+    <div class="cashout">
+      <button><span class="btn-cashout">CASHOUT</span></button>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
