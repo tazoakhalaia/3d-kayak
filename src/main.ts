@@ -24,6 +24,7 @@ class Kayak {
   private plane?: Mesh;
   private stats?: Stats;
   private boat?: any;
+  private fish?: any;
   private startGameState = false;
   private prizes = new Object3D();
   private goldTexute?: Texture;
@@ -63,6 +64,7 @@ class Kayak {
     this.directLight();
     this.createPrizes();
     this.createBoat();
+    this.renderFish();
   }
 
   ///Plane
@@ -150,12 +152,25 @@ class Kayak {
       this.boat = e.scene;
       this.boat.scale.set(10, 10, 10);
       this.boat.position.z = 35;
-      this.boat.rotation.y = 33;
       this.boat.rotation.y = MathUtils.degToRad(180);
       this.scene?.add(this.boat);
     });
   }
   //END Create Boat
+
+  ///Render Fish
+  renderFish() {
+    this.gltfLoader.load("models/fish.glb", (e) => {
+      this.fish = e.scene;
+      this.fish.scale.set(2, 2, 2);
+      this.fish.position.x = 30;
+      this.fish.position.z = 35;
+      this.fish.position.y = 0;
+      this.fish.rotation.y = MathUtils.degToRad(270);
+      this.scene?.add(this.fish);
+    });
+  }
+  ///End Render Fish
 
   ///Create Prizes
   createPrizes() {
@@ -192,6 +207,10 @@ class Kayak {
         }
         this.boat.position.z -= 1;
         this.camera.position.z -= 1;
+        this.fish.position.z -= 1;
+        this.fish.position.x = 30 + 0.2 * Math.sin(this.step);
+        this.fish.position.y = 11 * Math.sin(this.step);
+        this.fish.rotateZ(0.02 * Math.sin(this.step));
         this.boat.position.x = 1.5 * Math.sin(this.step);
         if (this.boat.position.z <= -1410) {
           this.startGameState = false;
@@ -231,6 +250,9 @@ class Kayak {
     this.removeEventListener();
     this.startGameState = false;
     this.boat.position.z = 35;
+    this.fish.position.z = 35;
+    this.fish.position.x = 30;
+    this.fish.position.y = 0;
     for (let i = this.prizes.children.length - 1; i >= 0; i--) {
       this.prizes.remove(this.prizes.children[i]);
     }
