@@ -36,6 +36,8 @@ class Kayak {
   private winClose = document.querySelector(".win-close");
   private coins = 0;
   private step = 0;
+  private coinStep = 0;
+  private gltfLoader = new GLTFLoader();
 
   init() {
     this.scene = new Scene();
@@ -142,8 +144,7 @@ class Kayak {
 
   //Create Boat
   createBoat() {
-    const gltLoader = new GLTFLoader();
-    gltLoader.load("models/boat.glb", (e) => {
+    this.gltfLoader.load("models/boat.glb", (e) => {
       this.boat = e.scene;
       this.boat.scale.set(10, 10, 10);
       this.boat.position.z = 35;
@@ -182,6 +183,11 @@ class Kayak {
     if (this.boat && this.camera) {
       if (this.startGameState) {
         this.step += 0.04;
+        this.coinStep += 0.08;
+        for (let i = 0; i < this.prizes.children.length; i++) {
+          const coins = this.prizes.children[i];
+          coins.position.y = 10 + 1.5 * Math.sin(this.coinStep);
+        }
         this.boat.position.z -= 1;
         this.camera.position.z -= 1;
         this.boat.position.x = 1.5 * Math.sin(this.step);
