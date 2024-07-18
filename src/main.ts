@@ -76,10 +76,7 @@ class Kayak {
     });
 
     const water = new Water(waterGeometry, {
-      textureWidth: 512,
-      textureHeight: 512,
       waterNormals: waterNormals,
-      alpha: 1.0,
       waterColor: "aqua",
       distortionScale: 3.7,
     });
