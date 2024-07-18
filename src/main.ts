@@ -1,12 +1,16 @@
 import {
-  DirectionalLight,
-  DirectionalLightHelper,
+  AmbientLight,
+  CircleGeometry,
+  Color,
   MathUtils,
   Mesh,
+  MeshBasicMaterial,
+  Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   RepeatWrapping,
   Scene,
+  Texture,
   TextureLoader,
   Vector3,
   WebGLRenderer,
@@ -22,7 +26,10 @@ class Kayak {
   private stats?: Stats;
   private boat?: any;
   private startGameState = false;
-  private directlight?: DirectionalLight;
+  private prizes = new Object3D();
+  private goldTexute?: Texture;
+  private score = document.querySelector("span");
+  private coins = 0;
 
   init() {
     this.scene = new Scene();
@@ -42,25 +49,24 @@ class Kayak {
     document.body.append(this.renderer.domElement);
     this.renderScene = this.renderScene.bind(this);
     window.addEventListener("resize", this.onWindowResize.bind(this));
+    this.goldTexute = new TextureLoader().load("assets/coin.png");
     this.renderScene();
     this.showFPS();
     this.createPlane();
     this.directLight();
+    this.createPrizes();
     this.createBoat();
   }
 
   ///Plane
   createPlane() {
-    const waterGeometry = new PlaneGeometry(60, 600);
+    const waterGeometry = new PlaneGeometry(60, 1600);
 
     const textureLoader = new TextureLoader();
-    const waterNormals = textureLoader.load(
-      "assets/water.jpg",
-      (texture) => {
-        texture.wrapS = RepeatWrapping;
-        texture.wrapT = RepeatWrapping;
-      }
-    );
+    const waterNormals = textureLoader.load("assets/water.jpg", (texture) => {
+      texture.wrapS = RepeatWrapping;
+      texture.wrapT = RepeatWrapping;
+    });
 
     const water = new Water(waterGeometry, {
       textureWidth: 512,
@@ -68,8 +74,8 @@ class Kayak {
       waterNormals: waterNormals,
       alpha: 1.0,
       sunDirection: new Vector3(),
-      sunColor: 'aqua',
-      waterColor: 'aqua',
+      sunColor: "aqua",
+      waterColor: "aqua",
       distortionScale: 3.7,
     });
 
@@ -83,27 +89,16 @@ class Kayak {
   //create FPS on screen
   showFPS() {
     this.stats = new Stats();
+    this.stats.dom.style.position = "absolute";
+    this.stats.dom.style.left = "90%";
     document.body.append(this.stats.dom);
   }
   ///END FPS
 
   //DirectLight
   directLight() {
-    this.directlight = new DirectionalLight(0xffffff, 10);
-    this.directlight.position.set(50, 90, 60);
-    this.directlight.castShadow = true;
-
-    this.directlight.shadow.mapSize.width = 2048;
-    this.directlight.shadow.mapSize.height = 2048;
-    this.directlight.shadow.camera.near = 0.1;
-    this.directlight.shadow.camera.far = 1000;
-    this.directlight.shadow.camera.left = -100;
-    this.directlight.shadow.camera.right = 100;
-    this.directlight.shadow.camera.top = 300;
-    this.directlight.shadow.camera.bottom = -300;
-
-    const helper = new DirectionalLightHelper(this.directlight, 5);
-    this.scene?.add(this.directlight, helper);
+    const ambientLight = new AmbientLight("", 6);
+    this.scene?.add(ambientLight);
   }
   ///End DirectLight
 
@@ -121,6 +116,21 @@ class Kayak {
   }
   //END Create Boat
 
+  ///Create Prizes
+  createPrizes() {
+    for (let i = 0; i < 10; i++) {
+      const prizeGeometry = new CircleGeometry(5);
+      const prizeMaterial = new MeshBasicMaterial({ map: this.goldTexute });
+      prizeMaterial.color = new Color(0.5, 0.5, 0.5);
+      const prizeMesh = new Mesh(prizeGeometry, prizeMaterial);
+      this.prizes?.add(prizeMesh);
+      this.prizes.children[i].position.z = i * -100;
+      this.prizes.children[i].position.y = 10;
+      this.scene?.add(this.prizes);
+    }
+  }
+  ///END Create Prizes
+
   /// resize and render
   onWindowResize() {
     if (this.camera && this.renderer) {
@@ -129,12 +139,34 @@ class Kayak {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
   }
+
   renderScene() {
     this.renderer?.setAnimationLoop(this.renderScene);
-    if (this.boat && this.directlight && this.camera) {
+    if (this.boat && this.camera) {
       this.boat.position.z -= 0.5;
       this.camera.position.z -= 0.5;
-      this.directlight.position.z -= 0.5;
+      for (let i = 0; i < this.prizes.children.length; i++) {
+        const coin = this.prizes.children[i];
+        if (this.boat.position.z - 25 === this.prizes.children[i].position.z) {
+          const scale = () => {
+            coin.position.x += 1;
+            coin.position.y += 1;
+            coin.scale.x -= 0.025;
+            coin.scale.y -= 0.025;
+            coin.scale.z -= 0.025;
+            if (coin.scale.x <= 0) {
+              this.prizes.remove(this.prizes.children[i]);
+              return;
+            }
+            requestAnimationFrame(scale);
+          };
+          scale();
+          this.coins++;
+          if (this.score) {
+            this.score.innerHTML = `${this.coins}`;
+          }
+        }
+      }
     }
     if (this.scene && this.camera) {
       this.stats?.update();
