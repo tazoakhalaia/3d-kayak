@@ -206,7 +206,14 @@ class Kayak {
   resert = () => {
     this.removeEventListener();
     this.boat.position.z = 35;
+    for (let i = this.prizes.children.length - 1; i >= 0; i--) {
+      this.prizes.remove(this.prizes.children[i]);
+    }
+    this.createPrizes();
     this.coins = 0;
+    if (this.score) {
+      this.score.innerHTML = `${this.coins}`;
+    }
     if (this.camera) {
       this.camera.position.set(0, 30, 130);
     }
