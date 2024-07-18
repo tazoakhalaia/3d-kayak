@@ -31,7 +31,11 @@ class Kayak {
   private score = document.querySelector("span");
   private startgame = document.querySelector(".startgame");
   private cashout = document.querySelector(".cashout");
+  private winScore = document.querySelector(".win-score");
+  private winAlert = document.querySelector(".win-alert");
+  private winClose = document.querySelector(".win-close");
   private coins = 0;
+  private step = 0;
 
   init() {
     this.scene = new Scene();
@@ -45,7 +49,6 @@ class Kayak {
     this.camera.lookAt(this.scene.position);
     this.renderer = new WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setClearColor("black");
     this.renderer.shadowMap.enabled = true;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.append(this.renderer.domElement);
@@ -63,7 +66,7 @@ class Kayak {
 
   ///Plane
   createPlane() {
-    const waterGeometry = new PlaneGeometry(60, 1600);
+    const waterGeometry = new PlaneGeometry(80, 3200);
 
     const textureLoader = new TextureLoader();
     const waterNormals = textureLoader.load("assets/water.jpg", (texture) => {
@@ -76,8 +79,6 @@ class Kayak {
       textureHeight: 512,
       waterNormals: waterNormals,
       alpha: 1.0,
-      sunDirection: new Vector3(),
-      sunColor: "aqua",
       waterColor: "aqua",
       distortionScale: 3.7,
     });
@@ -97,20 +98,30 @@ class Kayak {
     }
   }
 
+  closeAction() {
+    this.resert();
+    (this.winAlert as HTMLDivElement).style.display = "none";
+  }
+
   cashoutAction() {
     this.startGameState = false;
     (this.startgame as HTMLDivElement).style.display = "flex";
     (this.cashout as HTMLDivElement).style.display = "none";
-    this.resert();
+    if (this.winScore) {
+      (this.winAlert as HTMLDivElement).style.display = "flex";
+      this.winScore.innerHTML = `${this.coins}`;
+    }
   }
 
   addEventListener = () => {
     this.startgame?.addEventListener("click", () => this.startAction());
     this.cashout?.addEventListener("click", () => this.cashoutAction());
+    this.winClose?.addEventListener("click", () => this.closeAction());
   };
   removeEventListener = () => {
     this.startgame?.removeEventListener("click", () => this.startAction());
     this.cashout?.removeEventListener("click", () => this.cashoutAction());
+    this.winClose?.removeEventListener("click", () => this.closeAction());
   };
 
   //create FPS on screen
@@ -151,7 +162,7 @@ class Kayak {
       prizeMaterial.color = new Color(0.5, 0.5, 0.5);
       const prizeMesh = new Mesh(prizeGeometry, prizeMaterial);
       this.prizes?.add(prizeMesh);
-      this.prizes.children[i].position.z = i * -100;
+      this.prizes.children[i].position.z = i * -150;
       this.prizes.children[i].position.y = 10;
       this.scene?.add(this.prizes);
     }
@@ -168,11 +179,15 @@ class Kayak {
   }
 
   renderScene() {
-    this.renderer?.setAnimationLoop(this.renderScene);
     if (this.boat && this.camera) {
       if (this.startGameState) {
-        this.boat.position.z -= 0.5;
-        this.camera.position.z -= 0.5;
+        this.step += 0.04;
+        this.boat.position.z -= 1;
+        this.camera.position.z -= 1;
+        this.boat.position.x = 1.5 * Math.sin(this.step);
+        if (this.boat.position.z <= -1450) {
+          this.startGameState = false;
+        }
       }
       for (let i = 0; i < this.prizes.children.length; i++) {
         const coin = this.prizes.children[i];
@@ -201,10 +216,12 @@ class Kayak {
       this.stats?.update();
       this.renderer?.render(this.scene, this.camera);
     }
+    this.renderer?.setAnimationLoop(this.renderScene);
   }
 
   resert = () => {
     this.removeEventListener();
+    this.startGameState = false;
     this.boat.position.z = 35;
     for (let i = this.prizes.children.length - 1; i >= 0; i--) {
       this.prizes.remove(this.prizes.children[i]);

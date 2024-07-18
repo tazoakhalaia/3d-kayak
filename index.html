@@ -45,6 +45,42 @@
       width: 300px;
       height: 100px;
     }
+
+    .win-alert {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 500px;
+      height: 200px;
+      background-color: rgba(46, 164, 233, 0.7);
+      border-radius: 4px;
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      display: none;
+    }
+    .win-alert span {
+      font-size: 30px;
+      color: rgb(42, 236, 130);
+    }
+    .win-alert h1 {
+      font-size: 30px;
+      color: rgb(224, 226, 120);
+    }
+
+    .win-close {
+      width: 100px;
+      height: 30px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      text-transform: capitalize;
+      font-weight: bold;
+    }
   </style>
   <body>
     <div id="app"></div>
@@ -56,6 +92,10 @@
     </div>
     <div class="cashout">
       <button><span class="btn-cashout">CASHOUT</span></button>
+    </div>
+    <div class="win-alert">
+      <h1>Congrats Your Score is: <span class="win-score"></span></h1>
+      <button class="win-close">Close</button>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
