@@ -12,7 +12,6 @@ import {
   Scene,
   Texture,
   TextureLoader,
-  Vector3,
   WebGLRenderer,
 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
@@ -92,6 +91,15 @@ class Kayak {
   }
   ///End Plane
 
+  ///Show Win Alert
+  showWinAlert() {
+    if (this.winScore) {
+      (this.winAlert as HTMLDivElement).style.display = "flex";
+      this.winScore.innerHTML = `${this.coins}`;
+    }
+  }
+  ///End Win Alert
+
   startAction() {
     this.startGameState = true;
     if (this.startgame) {
@@ -103,16 +111,13 @@ class Kayak {
   closeAction() {
     this.resert();
     (this.winAlert as HTMLDivElement).style.display = "none";
+    (this.startgame as HTMLDivElement).style.display = "flex";
   }
 
   cashoutAction() {
     this.startGameState = false;
-    (this.startgame as HTMLDivElement).style.display = "flex";
     (this.cashout as HTMLDivElement).style.display = "none";
-    if (this.winScore) {
-      (this.winAlert as HTMLDivElement).style.display = "flex";
-      this.winScore.innerHTML = `${this.coins}`;
-    }
+    this.showWinAlert();
   }
 
   addEventListener = () => {
@@ -191,16 +196,16 @@ class Kayak {
         this.boat.position.z -= 1;
         this.camera.position.z -= 1;
         this.boat.position.x = 1.5 * Math.sin(this.step);
-        if (this.boat.position.z <= -1450) {
+        if (this.boat.position.z <= -1410) {
           this.startGameState = false;
+          this.showWinAlert();
+          (this.cashout as HTMLDivElement).style.display = "none";
         }
       }
       for (let i = 0; i < this.prizes.children.length; i++) {
         const coin = this.prizes.children[i];
         if (this.boat.position.z - 25 === this.prizes.children[i].position.z) {
           const scale = () => {
-            coin.position.x += 1;
-            coin.position.y += 1;
             coin.scale.x -= 0.025;
             coin.scale.y -= 0.025;
             coin.scale.z -= 0.025;
