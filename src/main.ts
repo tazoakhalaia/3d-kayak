@@ -3,6 +3,7 @@ import {
   AnimationMixer,
   CircleGeometry,
   Color,
+  LoadingManager,
   MathUtils,
   Mesh,
   MeshBasicMaterial,
@@ -39,13 +40,29 @@ class Kayak {
   private winScore = document.querySelector(".win-score");
   private winAlert = document.querySelector(".win-alert");
   private winClose = document.querySelector(".win-close");
+  private loading = document.querySelector(".loading");
+  private scoreDiv = document.querySelector(".score");
+  private app = document.querySelector(".app");
   private coins = 0;
   private step = 0;
   private coinStep = 0;
-  private gltfLoader = new GLTFLoader();
-  private fxbLoader = new FBXLoader();
   private mixer?: AnimationMixer;
   private mixerArray: AnimationMixer[] = [];
+  private loadingManager = new LoadingManager();
+  private gltfLoader = new GLTFLoader(this.loadingManager);
+  private fxbLoader = new FBXLoader();
+  constructor() {
+    this.loadingManager.onProgress = (url, loaded, total) => {
+      if (this.loading) {
+        (this.loading as HTMLProgressElement).value = (loaded / total) * 100;
+        if ((this.loading as HTMLProgressElement).value >= 100) {
+          (this.loading as HTMLDivElement).style.display = "none";
+          (this.startgame as HTMLDivElement).style.display = "flex";
+          (this.scoreDiv as HTMLDivElement).style.display = "flex";
+        }
+      }
+    };
+  }
 
   init() {
     this.scene = new Scene();
@@ -61,7 +78,7 @@ class Kayak {
     this.renderer = new WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.append(this.renderer.domElement);
+    this.app?.append(this.renderer.domElement);
     this.renderScene = this.renderScene.bind(this);
     window.addEventListener("resize", this.onWindowResize.bind(this));
     this.goldTexute = new TextureLoader().load("assets/coin.png");
@@ -231,7 +248,7 @@ class Kayak {
     this.stats = new Stats();
     this.stats.dom.style.position = "absolute";
     this.stats.dom.style.left = "90%";
-    document.body.append(this.stats.dom);
+    this.app?.append(this.stats.dom);
   }
   ///END FPS
 
