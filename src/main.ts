@@ -27,6 +27,7 @@ class Kayak {
   private fish?: any;
   private startGameState = false;
   private prizes = new Object3D();
+  private right3DObjects = new Object3D();
   private goldTexute?: Texture;
   private score = document.querySelector("span");
   private startgame = document.querySelector(".startgame");
@@ -51,7 +52,6 @@ class Kayak {
     this.camera.lookAt(this.scene.position);
     this.renderer = new WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.shadowMap.enabled = true;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.append(this.renderer.domElement);
     this.renderScene = this.renderScene.bind(this);
@@ -60,6 +60,7 @@ class Kayak {
     this.addEventListener();
     this.renderScene();
     this.showFPS();
+    this.createSandPlane();
     this.createPlane();
     this.directLight();
     this.createPrizes();
@@ -84,11 +85,29 @@ class Kayak {
     });
 
     water.rotation.x = Math.PI * -0.5;
-    water.receiveShadow = true;
     this.plane = water;
     this.scene?.add(water);
   }
   ///End Plane
+
+  ///Create Plane for sand
+  createSandPlane() {
+    const sandTexture = new TextureLoader().load(
+      "assets/sand.jpg",
+      (texture) => {
+        texture.wrapS = RepeatWrapping;
+        texture.wrapT = RepeatWrapping;
+        texture.repeat.set(10, 320);
+      }
+    );
+    const sandGeometry = new PlaneGeometry(100, 3200);
+    const sandMaterial = new MeshBasicMaterial({ map: sandTexture });
+    const sandPlane = new Mesh(sandGeometry, sandMaterial);
+    sandPlane.rotation.x = Math.PI * -0.5;
+    sandPlane.position.x = 90;
+    this.scene?.add(sandPlane);
+  }
+  ///END Create plane for sand
 
   ///Show Win Alert
   showWinAlert() {
@@ -166,6 +185,7 @@ class Kayak {
       this.fish.position.x = 30;
       this.fish.position.z = 35;
       this.fish.position.y = 0;
+      this.fish.rotateZ(0);
       this.fish.rotation.y = MathUtils.degToRad(270);
       this.scene?.add(this.fish);
     });
