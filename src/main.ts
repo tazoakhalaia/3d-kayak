@@ -16,6 +16,7 @@ import {
 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { GLTFLoader, Water } from "three/examples/jsm/Addons.js";
+import { PalmPositions } from "./constants/palm-positions.constant";
 
 class Kayak {
   private scene?: Scene;
@@ -61,6 +62,7 @@ class Kayak {
     this.renderScene();
     this.showFPS();
     this.createSandPlane();
+    this.createObjectsOnPlane();
     this.createPlane();
     this.directLight();
     this.createPrizes();
@@ -90,7 +92,7 @@ class Kayak {
   }
   ///End Plane
 
-  ///Create Plane for sand
+  ///Create Plane for sand and objects on plane
   createSandPlane() {
     const sandTexture = new TextureLoader().load(
       "assets/sand.jpg",
@@ -107,7 +109,31 @@ class Kayak {
     sandPlane.position.x = 90;
     this.scene?.add(sandPlane);
   }
-  ///END Create plane for sand
+
+  createObjectsOnPlane() {
+    this.gltfLoader.load("models/ship.glb", (e) => {
+      const ship = e.scene;
+      ship.scale.set(5, 5, 5);
+      ship.rotation.y = MathUtils.degToRad(-90);
+      ship.position.y = -3;
+      this.right3DObjects.position.x = 75;
+      ship.position.z = -75;
+      ship.name = "ship";
+      for (let i = 0; i < 15; i++) {
+        this.gltfLoader.load("models/palm.glb", (e) => {
+          const palm = e.scene;
+          palm.scale.set(6, 6, 6);
+          palm.position.z = i * -100;
+          palm.position.x = PalmPositions[i];
+          this.right3DObjects.add(palm);
+        });
+      }
+      ship.rotation.x = MathUtils.degToRad(-20);
+      this.right3DObjects.add(ship);
+      this.scene?.add(this.right3DObjects);
+    });
+  }
+  ///END Create plane for sand objects on plane
 
   ///Show Win Alert
   showWinAlert() {
