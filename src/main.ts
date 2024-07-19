@@ -16,7 +16,9 @@ import {
 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { GLTFLoader, Water } from "three/examples/jsm/Addons.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PalmPositions } from "./constants/palm-positions.constant";
+import { UmrellaPositions } from "./constants/umrella-positions.constants";
 
 class Kayak {
   private scene?: Scene;
@@ -29,6 +31,7 @@ class Kayak {
   private startGameState = false;
   private prizes = new Object3D();
   private right3DObjects = new Object3D();
+  private umrellaObjects = new Object3D();
   private goldTexute?: Texture;
   private score = document.querySelector("span");
   private startgame = document.querySelector(".startgame");
@@ -40,6 +43,7 @@ class Kayak {
   private step = 0;
   private coinStep = 0;
   private gltfLoader = new GLTFLoader();
+  private orbitControls?: any;
 
   init() {
     this.scene = new Scene();
@@ -57,12 +61,17 @@ class Kayak {
     document.body.append(this.renderer.domElement);
     this.renderScene = this.renderScene.bind(this);
     window.addEventListener("resize", this.onWindowResize.bind(this));
+    this.orbitControls = new OrbitControls(
+      this.camera,
+      this.renderer.domElement
+    );
     this.goldTexute = new TextureLoader().load("assets/coin.png");
     this.addEventListener();
     this.renderScene();
     this.showFPS();
     this.createSandPlane();
     this.createObjectsOnPlane();
+    this.createBeachUmbrella();
     this.createPlane();
     this.directLight();
     this.createPrizes();
@@ -121,7 +130,7 @@ class Kayak {
       ship.name = "ship";
       for (let i = 0; i < 15; i++) {
         this.gltfLoader.load("models/palm.glb", (e) => {
-          const palm = e.scene;
+          const palm = e.scene.clone();
           palm.scale.set(6, 6, 6);
           palm.position.z = i * -100;
           palm.position.x = PalmPositions[i];
@@ -131,6 +140,21 @@ class Kayak {
       ship.rotation.x = MathUtils.degToRad(-20);
       this.right3DObjects.add(ship);
       this.scene?.add(this.right3DObjects);
+    });
+  }
+
+  createBeachUmbrella() {
+    this.gltfLoader.load("models/parasol.glb", (e) => {
+      for (let i = 0; i < 6; i++) {
+        const umrella = e.scene.clone();
+        umrella.name = "umbrella";
+        umrella.scale.set(40, 40, 40);
+        umrella.position.x = UmrellaPositions[i];
+        umrella.position.z = -150 - 100 * i;
+        this.umrellaObjects.add(umrella);
+      }
+      console.log("this.umrellaObjects :", this.umrellaObjects);
+      this.scene?.add(this.umrellaObjects);
     });
   }
   ///END Create plane for sand objects on plane
@@ -243,6 +267,9 @@ class Kayak {
   }
 
   renderScene() {
+    if (this.orbitControls) {
+      this.orbitControls.update();
+    }
     if (this.boat && this.camera) {
       if (this.startGameState) {
         this.step += 0.04;
