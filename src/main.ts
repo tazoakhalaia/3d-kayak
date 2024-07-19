@@ -24,7 +24,6 @@ class Kayak {
   private scene?: Scene;
   private camera?: PerspectiveCamera;
   private renderer?: WebGLRenderer;
-  private plane?: Mesh;
   private stats?: Stats;
   private boat?: any;
   private fish?: any;
@@ -98,7 +97,6 @@ class Kayak {
     });
 
     water.rotation.x = Math.PI * -0.5;
-    this.plane = water;
     this.scene?.add(water);
   }
   ///End Plane
