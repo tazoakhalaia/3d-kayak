@@ -17,7 +17,6 @@ import {
 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { FBXLoader, GLTFLoader, Water } from "three/examples/jsm/Addons.js";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PalmPositions } from "./constants/palm-positions.constant";
 import { UmrellaPositions } from "./constants/umrella-positions.constants";
 
@@ -67,10 +66,6 @@ class Kayak {
     document.body.append(this.renderer.domElement);
     this.renderScene = this.renderScene.bind(this);
     window.addEventListener("resize", this.onWindowResize.bind(this));
-    this.orbitControls = new OrbitControls(
-      this.camera,
-      this.renderer.domElement
-    );
     this.goldTexute = new TextureLoader().load("assets/coin.png");
     this.addEventListener();
     this.renderScene();
