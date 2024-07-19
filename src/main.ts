@@ -72,6 +72,7 @@ class Kayak {
     this.createSandPlane();
     this.createObjectsOnPlane();
     this.createBeachUmbrella();
+    this.createLifeGuardHouse();
     this.createPlane();
     this.directLight();
     this.createPrizes();
@@ -144,17 +145,27 @@ class Kayak {
   }
 
   createBeachUmbrella() {
-    this.gltfLoader.load("models/parasol.glb", (e) => {
+    this.gltfLoader.load("models/umbrella.glb", (e) => {
       for (let i = 0; i < 6; i++) {
         const umrella = e.scene.clone();
         umrella.name = "umbrella";
         umrella.scale.set(40, 40, 40);
         umrella.position.x = UmrellaPositions[i];
-        umrella.position.z = -150 - 100 * i;
+        umrella.position.z = -220 - 100 * i;
         this.umrellaObjects.add(umrella);
       }
-      console.log("this.umrellaObjects :", this.umrellaObjects);
       this.scene?.add(this.umrellaObjects);
+    });
+  }
+
+  createLifeGuardHouse() {
+    this.gltfLoader.load("models/lifeguard_post.glb", (e) => {
+      const lifeguardPost = e.scene;
+      lifeguardPost.scale.set(4, 4, 4);
+      lifeguardPost.position.x = 70
+      lifeguardPost.position.z = -150
+      lifeguardPost.rotation.y = MathUtils.degToRad(-90)
+      this.scene?.add(lifeguardPost);
     });
   }
   ///END Create plane for sand objects on plane
@@ -268,7 +279,7 @@ class Kayak {
 
   renderScene() {
     if (this.orbitControls) {
-      this.orbitControls.update();
+      // this.orbitControls.update();
     }
     if (this.boat && this.camera) {
       if (this.startGameState) {
