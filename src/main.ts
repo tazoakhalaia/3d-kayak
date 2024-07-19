@@ -1,5 +1,6 @@
 import {
   AmbientLight,
+  AnimationMixer,
   CircleGeometry,
   Color,
   MathUtils,
@@ -15,7 +16,7 @@ import {
   WebGLRenderer,
 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
-import { GLTFLoader, Water } from "three/examples/jsm/Addons.js";
+import { FBXLoader, GLTFLoader, Water } from "three/examples/jsm/Addons.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PalmPositions } from "./constants/palm-positions.constant";
 import { UmrellaPositions } from "./constants/umrella-positions.constants";
@@ -32,6 +33,7 @@ class Kayak {
   private prizes = new Object3D();
   private right3DObjects = new Object3D();
   private umrellaObjects = new Object3D();
+  private humanObjects = new Object3D();
   private goldTexute?: Texture;
   private score = document.querySelector("span");
   private startgame = document.querySelector(".startgame");
@@ -43,10 +45,14 @@ class Kayak {
   private step = 0;
   private coinStep = 0;
   private gltfLoader = new GLTFLoader();
+  private fxbLoader = new FBXLoader();
   private orbitControls?: any;
+  private mixer?: AnimationMixer;
+  private mixerArray: AnimationMixer[] = [];
 
   init() {
     this.scene = new Scene();
+    this.scene.background = new TextureLoader().load("assets/sky.jpg");
     this.camera = new PerspectiveCamera(
       45,
       window.innerWidth / window.innerHeight,
@@ -73,6 +79,7 @@ class Kayak {
     this.createObjectsOnPlane();
     this.createBeachUmbrella();
     this.createLifeGuardHouse();
+    this.createHumanAnimation();
     this.createPlane();
     this.directLight();
     this.createPrizes();
@@ -162,11 +169,28 @@ class Kayak {
     this.gltfLoader.load("models/lifeguard_post.glb", (e) => {
       const lifeguardPost = e.scene;
       lifeguardPost.scale.set(4, 4, 4);
-      lifeguardPost.position.x = 70
-      lifeguardPost.position.z = -150
-      lifeguardPost.rotation.y = MathUtils.degToRad(-90)
+      lifeguardPost.position.x = 70;
+      lifeguardPost.position.z = -150;
+      lifeguardPost.rotation.y = MathUtils.degToRad(-90);
       this.scene?.add(lifeguardPost);
     });
+  }
+
+  createHumanAnimation() {
+    for (let i = 0; i < 10; i++) {
+      this.fxbLoader.load("models/hand-rise.fbx", (e) => {
+        e.scale.set(0.1, 0.1, 0.1);
+        e.position.x = 45;
+        e.position.z = -150 - 50 * i;
+        e.rotation.y = MathUtils.degToRad(-25);
+        this.mixer = new AnimationMixer(e);
+        this.mixerArray.push(this.mixer);
+        const action = this.mixer.clipAction(e.animations[0]);
+        action.play();
+        this.humanObjects.add(e);
+      });
+    }
+    this.scene?.add(this.humanObjects);
   }
   ///END Create plane for sand objects on plane
 
@@ -221,7 +245,7 @@ class Kayak {
 
   //DirectLight
   directLight() {
-    const ambientLight = new AmbientLight("", 6);
+    const ambientLight = new AmbientLight("", 5);
     this.scene?.add(ambientLight);
   }
   ///End DirectLight
@@ -278,8 +302,8 @@ class Kayak {
   }
 
   renderScene() {
-    if (this.orbitControls) {
-      // this.orbitControls.update();
+    if (this.mixer) {
+      this.mixerArray.forEach((mixer) => mixer.update(0.01));
     }
     if (this.boat && this.camera) {
       if (this.startGameState) {
