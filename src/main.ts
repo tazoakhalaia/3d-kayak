@@ -45,7 +45,6 @@ class Kayak {
   private coinStep = 0;
   private gltfLoader = new GLTFLoader();
   private fxbLoader = new FBXLoader();
-  private orbitControls?: any;
   private mixer?: AnimationMixer;
   private mixerArray: AnimationMixer[] = [];
 
@@ -256,7 +255,6 @@ class Kayak {
     });
   }
   //END Create Boat
-
   ///Render Fish
   renderFish() {
     this.gltfLoader.load("models/fish.glb", (e) => {
