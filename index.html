@@ -13,6 +13,7 @@
       box-sizing: border-box;
     }
     .app {
+      display: none;
       position: relative;
       overflow: hidden;
     }
@@ -99,6 +100,25 @@
       cursor: pointer;
       text-transform: capitalize;
       font-weight: bold;
+    }
+
+    progress {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      width: 50%;
+      height: 50px;
+      accent-color: rgb(70, 226, 70);
+    }
+
+    progress::before {
+      position: absolute;
+      content: attr(data-value)'%';
+      color: red;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
     }
   </style>
   <body>

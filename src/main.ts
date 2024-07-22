@@ -46,6 +46,7 @@ class Kayak {
   private coins = 0;
   private step = 0;
   private coinStep = 0;
+  private maxLoadValue = 0;
   private mixer?: AnimationMixer;
   private mixerArray: AnimationMixer[] = [];
   private loadingManager = new LoadingManager();
@@ -53,12 +54,21 @@ class Kayak {
   private fxbLoader = new FBXLoader();
   constructor() {
     this.loadingManager.onProgress = (url, loaded, total) => {
+      const currentValue = (loaded / total) * 100;
+      if (currentValue > this.maxLoadValue) {
+        this.maxLoadValue = currentValue;
+      }
       if (this.loading) {
-        (this.loading as HTMLProgressElement).value = (loaded / total) * 100;
+        (this.loading as HTMLProgressElement).value = this.maxLoadValue;
+        this.loading.setAttribute(
+          "data-value",
+          `${Math.floor(this.maxLoadValue)}`
+        );
         if ((this.loading as HTMLProgressElement).value >= 100) {
           (this.loading as HTMLDivElement).style.display = "none";
           (this.startgame as HTMLDivElement).style.display = "flex";
           (this.scoreDiv as HTMLDivElement).style.display = "flex";
+          (this.app as HTMLDivElement).style.display = "block";
         }
       }
     };
