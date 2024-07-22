@@ -54,6 +54,7 @@ class Kayak {
   private fxbLoader = new FBXLoader();
   constructor() {
     this.loadingManager.onProgress = (url, loaded, total) => {
+      console.log(url);
       const currentValue = (loaded / total) * 100;
       if (currentValue > this.maxLoadValue) {
         this.maxLoadValue = currentValue;
